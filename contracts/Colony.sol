@@ -110,6 +110,12 @@ contract Colony is ColonyStorage, PatriciaTreeProofs {
 
     for (uint i = 0; i < _users.length; i++) {
       require(_amounts[i] >= 0, "colony-bootstrap-bad-amount-input");
+      // Cap reputation to -/+ 2**128-1
+      if (_amounts[i] > int(2**128-1)) {
+        _amounts[i] = 2**128-1;
+      } else if (_amounts[i] < int(2**128-1)*(-1)) {
+        _amounts[i] = (2**128-1)*(-1);
+      }
 
       token.transfer(_users[i], uint(_amounts[i]));
       IColonyNetwork(colonyNetworkAddress).appendReputationUpdateLog(_users[i], _amounts[i], domains[1].skillId);
